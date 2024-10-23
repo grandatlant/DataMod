@@ -12,6 +12,7 @@ ruRU/**
 enUS/**
 # Except added or removed files in those dirs
 !**/realmlist.wtf
+!**/_base_realmlist.wtf
 !**/RealmsManager.exe
 !**/RealmsManager.ini
 #!
