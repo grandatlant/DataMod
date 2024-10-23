@@ -1,0 +1,19 @@
+### MPQ files change settings ###
+# Remove all MPQ from index
+*.MPQ
+# Except changed here
+!__patch-ruRU-P.MPQ
+#!
+#!
+#!
+
+# Ignore used locale`s contents by default
+ruRU/**
+enUS/**
+# Except added or removed files in those dirs
+!**/realmlist.wtf
+!**/RealmsManager.exe
+!**/RealmsManager.ini
+#!
+#!
+#!
