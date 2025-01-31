@@ -11,7 +11,7 @@ if os.name == "posix":
 elif (os.name == "win") or (os.name == "nt"):
     WOW_PATH = r"E:\World of Warcraft\\"
 
-WOW_PATH = './'
+WOW_PATH = '../'
 
 def listfiles(path):
     return [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
