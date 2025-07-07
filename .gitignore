@@ -1,0 +1,7 @@
+# Packed patch archives
+patch-*.MPQ
+patch-*.mpq
+
+# But save default-packed patch with all contents for downloading
+!patch-Y.MPQ
+
