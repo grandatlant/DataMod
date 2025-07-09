@@ -11,7 +11,7 @@ https://github.com/bubio/smpq
 https://www.zezula.net/en/mpq/download.html#StormLib
 """
 
-__version__ = '0.0.3'
+__version__ = '0.0.4'
 __copyright__ = 'Copyright (C) 2025 grandatlant'
 
 import os
