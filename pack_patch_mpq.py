@@ -84,6 +84,7 @@ def append_files(patch: str, files: list) -> int:
     command = [
         smpq,
         '--append',
+        '--force',
         '--verbose',
         patch,
         *files,
