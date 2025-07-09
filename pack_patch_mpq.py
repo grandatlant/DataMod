@@ -11,7 +11,7 @@ https://github.com/bubio/smpq
 https://www.zezula.net/en/mpq/download.html#StormLib
 """
 
-__version__ = '0.0.4'
+__version__ = '0.0.5'
 __copyright__ = 'Copyright (C) 2025 grandatlant'
 
 import os
@@ -24,16 +24,19 @@ logging.basicConfig(
     level = logging.DEBUG if __debug__ else logging.ERROR,
     stream = sys.stdout,
     style = '{',
-    format = '{levelname}::{message}'
+    format = '{levelname}::{message}',
 )
 log = logging.getLogger(__name__)
 
 try:
-    from dotenv import load_dotenv
+    from dotenv import dotenv_values
 except ImportError:
-    def load_dotenv(*a, **k):
-        log.warning('load_dotenv() call with missing python-dotenv.')
-load_dotenv()
+    def dotenv_values(*args, **kwargs):
+        log.warning('dotenv_values(%s, %s) call'
+                    'with missing python-dotenv.',
+                    args, kwargs)
+        return kwargs or dict()
+dotENV = dotenv_values()
 
 # Global defaults
 PATCH_NAME = 'patch-Y.MPQ'
@@ -44,13 +47,23 @@ PATCH_CONTENT = [
 ]
 # I do not support Windows users, but lets give it a shot.
 # You can override it if you want to change SMPQ system command prefix
-# or use another utility
+# or provide SMPQ variable in your environment or .env file value 'SMPQ'
 SMPQ_CMD = 'smpq' if os.name == 'posix' else r'C:\smpq\build\smpq.exe'
-smpq = os.getenv('SMPQ', SMPQ_CMD)
+smpq: str = os.getenv('SMPQ') or dotENV.get('SMPQ') or SMPQ_CMD
+
+
+def ensure_patch_name(filename: str) -> str:
+    """Converts argument to format "patch-XXXX.MPQ" if it is not.
+    Return value: str - converted value or argument itself."""
+    if not filename.lower().startswith('patch-'):
+        filename = 'patch-' + filename
+    if not filename.upper().endswith('.MPQ'):
+        filename += '.MPQ'
+    return filename
 
 
 def init_patch(name: str, mpq_version: str = '2') -> int:
-    """Creates new MPQ file witn given "name" and "version" using smpq util.
+    """Creates new MPQ file with given "name" and "version" using smpq util.
     Return value: status code returned by smpq."""
     command = [
         smpq,
@@ -72,7 +85,7 @@ def init_patch(name: str, mpq_version: str = '2') -> int:
         log.info('Output:\n%s', result.stdout)
     if result.stderr:
         log.info('Errors:\n%s', result.stderr)
-    log.info('Patch "%s" init finished. Return code: %i',
+    log.info('Patch "%s" init finished. Return code: %x',
              name, result.returncode)
     return result.returncode or 0
 
@@ -100,7 +113,7 @@ def append_files(patch: str, files: list) -> int:
         log.info('Output:\n%s', result.stdout)
     if result.stderr:
         log.info('Errors:\n%s', result.stderr)
-    log.info('Patch "%s" append finished. Return code: %i',
+    log.info('Patch "%s" append finished. Return code: %x',
              patch, result.returncode)
     return result.returncode or 0
 
@@ -164,7 +177,7 @@ def parse_cli_args(args=None):
         '-p',
         '--patch',
         default = PATCH_NAME,
-        help = f'''MPQ archive name. 
+        help = f'''MPQ archive name in format "patch-X.MPQ" or just "X".
         Default filename "{PATCH_NAME}" script-defined.''',
     )
     parser.add_argument(
@@ -184,16 +197,17 @@ def main(args=None):
     parsed = parse_cli_args(args)
     log.debug('Parsed args: %s', parsed)
     
-    if parsed and parsed.content:
-        if not parsed.append or not os.path.exists(parsed.patch):
-            # init new file first
-            if init_result := init_patch(parsed.patch):
-                log.error('init_patch() error. Status code: %i.', init_result)
-                return init_result
-        # now append existing patch
-        if append_result := append_patch(parsed.patch, parsed.content):
-            log.error('append_files() error. Status code: %i.', append_result)
-            return append_result
+    patch = ensure_patch_name(parsed.patch)
+    if not parsed.append or not os.path.exists(patch):
+        # init new patch file first
+        if init_result := init_patch(patch):
+            log.error('init_patch() error. Status code: %x.', init_result)
+            return init_result
+    
+    # now append existing patch
+    if append_result := append_patch(patch, parsed.content):
+        log.error('append_patch() error. Status code: %x.', append_result)
+        return append_result
     
     log.debug('main() OK. return 0')
     return 0
