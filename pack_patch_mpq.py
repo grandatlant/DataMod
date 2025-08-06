@@ -11,32 +11,27 @@ https://github.com/bubio/smpq
 https://www.zezula.net/en/mpq/download.html#StormLib
 """
 
-__version__ = '0.0.5'
+__version__ = '0.0.6'
 __copyright__ = 'Copyright (C) 2025 grandatlant'
 
 import os
 import sys
 import subprocess
-from argparse import ArgumentParser
+from argparse import ArgumentParser, Namespace
+
+from typing import (
+    Optional, Union,
+    List, Dict,
+)
 
 import logging
 logging.basicConfig(
-    level = logging.DEBUG if __debug__ else logging.ERROR,
+    level = logging.DEBUG if __debug__ else logging.INFO,
     stream = sys.stdout,
     style = '{',
     format = '{levelname}::{message}',
 )
-log = logging.getLogger(__name__)
-
-try:
-    from dotenv import dotenv_values
-except ImportError:
-    def dotenv_values(*args, **kwargs):
-        log.warning('dotenv_values(%s, %s) call'
-                    'with missing python-dotenv.',
-                    args, kwargs)
-        return kwargs or dict()
-dotENV = dotenv_values()
+log: logging.Logger = logging.getLogger(__name__)
 
 # Global defaults
 PATCH_NAME = 'patch-Y.MPQ'
@@ -45,10 +40,20 @@ PATCH_CONTENT = [
     'Fonts',
     'Sound',
 ]
-# I do not support Windows users, but lets give it a shot.
-# You can override it if you want to change SMPQ system command prefix
-# or provide SMPQ variable in your environment or .env file value 'SMPQ'
+# Lets give a try to Windows users use this script.
 SMPQ_CMD = 'smpq' if os.name == 'posix' else r'C:\smpq\build\smpq.exe'
+# You can override it with SMPQ variable in your environment
+# or .env file value 'SMPQ'
+dotENV: Dict[str, Optional[str]] = {
+    'SMPQ': None,
+}
+try:
+    from dotenv import dotenv_values
+    dotENV.update(dotenv_values())
+except ImportError:
+    # pip install python-dotenv
+    log.warning('python-dotenv is missing, using defaults.')
+
 smpq: str = os.getenv('SMPQ') or dotENV.get('SMPQ') or SMPQ_CMD
 
 
@@ -62,8 +67,9 @@ def ensure_patch_name(filename: str) -> str:
     return filename
 
 
-def init_patch(name: str, mpq_version: str = '2') -> int:
+def init_patch(name: str, mpq_version: Union[str, int] = '2') -> int:
     """Creates new MPQ file with given "name" and "version" using smpq util.
+    MPQ Version 2 used by default for World of Warcraft: Wrath of the Lich King.
     Return value: status code returned by smpq."""
     command = [
         smpq,
@@ -84,13 +90,16 @@ def init_patch(name: str, mpq_version: str = '2') -> int:
     if result.stdout:
         log.info('Output:\n%s', result.stdout)
     if result.stderr:
-        log.info('Errors:\n%s', result.stderr)
-    log.info('Patch "%s" init finished. Return code: %x',
-             name, result.returncode)
+        log.error('Errors:\n%s', result.stderr)
+    log.info(
+        'Patch "%s" init finished. Return code: %x',
+        name,
+        result.returncode,
+    )
     return result.returncode or 0
 
 
-def append_files(patch: str, files: list) -> int:
+def append_files(patch: str, files: List[str]) -> int:
     """Append existing MPQ file "patch"
     with list of "files" given using smpq util.
     Return value: status code returned by smpq."""
@@ -102,7 +111,7 @@ def append_files(patch: str, files: list) -> int:
         patch,
         *files,
     ]
-    log.info('Patch "%s", append files.', patch)
+    log.info('Patch "%s", append files...', patch)
     result = subprocess.run(
         command,
         text=True,
@@ -112,13 +121,16 @@ def append_files(patch: str, files: list) -> int:
     if result.stdout:
         log.info('Output:\n%s', result.stdout)
     if result.stderr:
-        log.info('Errors:\n%s', result.stderr)
-    log.info('Patch "%s" append finished. Return code: %x',
-             patch, result.returncode)
+        log.error('Errors:\n%s', result.stderr)
+    log.info(
+        'Patch "%s" append finished. Return code: %x',
+        patch,
+        result.returncode,
+    )
     return result.returncode or 0
 
 
-def list_dir_files(dirname: str) -> list:
+def list_dir_files(dirname: str) -> List[str]:
     """os.walk directory named "dirname"
     and form a list of all files in it 
     with relative dirpath included to each filename.
@@ -130,13 +142,13 @@ def list_dir_files(dirname: str) -> list:
     return files
 
 
-def append_patch(name: str, content: list) -> int:
+def append_patch(name: str, content: List[str]) -> int:
     """Append files listed in "content"
     to MPQ archive named "name".
     Return value: int - combination (bitwise OR) of return codes,
     returned by smpq utility while executing append_files() calls."""
     # status code gathering variable
-    append_result = int()
+    append_result = int(0)
     for item in content:
         log.debug('Processing content item "%s".', item)
         if os.path.isfile(item):
@@ -152,9 +164,9 @@ def append_patch(name: str, content: list) -> int:
     return append_result
 
 
-def parse_cli_args(args=None):
+def parse_cli_args(args: Optional[List[str]] = None) -> Namespace:
     
-    parser = ArgumentParser(
+    parser: ArgumentParser = ArgumentParser(
         description = __doc__,
         allow_abbrev = False,
         epilog = __copyright__,
@@ -191,25 +203,33 @@ def parse_cli_args(args=None):
 
 
 ##  MAIN ENTRY POINT
-def main(args=None):
+def main(args: Optional[List[str]] = None) -> int:
     if args is sys.argv:
         args = args[1:]
-    parsed = parse_cli_args(args)
+    parsed: Namespace = parse_cli_args(args)
     log.debug('Parsed args: %s', parsed)
     
-    patch = ensure_patch_name(parsed.patch)
+    patch: str = ensure_patch_name(parsed.patch)
     if not parsed.append or not os.path.exists(patch):
         # init new patch file first
         if init_result := init_patch(patch):
-            log.error('init_patch() error. Status code: %x.', init_result)
+            log.error(
+                'init_patch(%s) error. Status code: %x.',
+                patch,
+                init_result,
+            )
             return init_result
     
     # now append existing patch
     if append_result := append_patch(patch, parsed.content):
-        log.error('append_patch() error. Status code: %x.', append_result)
+        log.error(
+            'append_patch(%s, ...) error. Status code: %x.',
+            patch,
+            append_result,
+        )
         return append_result
     
-    log.debug('main() OK. return 0')
+    log.debug('main(%s) OK. return 0', args)
     return 0
 
 
