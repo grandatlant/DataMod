@@ -204,7 +204,8 @@ def parse_cli_args(args: Optional[List[str]] = None) -> Namespace:
 
 ##  MAIN ENTRY POINT
 def main(args: Optional[List[str]] = None) -> int:
-    if args is sys.argv:
+    log.debug('main(%s) start.', args)
+    if args and args == sys.argv:
         args = args[1:]
     parsed: Namespace = parse_cli_args(args)
     log.debug('Parsed args: %s', parsed)
