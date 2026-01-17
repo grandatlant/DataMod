@@ -11,7 +11,7 @@ https://github.com/bubio/smpq
 https://www.zezula.net/en/mpq/download.html#StormLib
 """
 
-__version__ = '0.0.6'
+__version__ = '0.0.7'
 __copyright__ = 'Copyright (C) 2025 grandatlant'
 
 import os
@@ -36,6 +36,7 @@ log: logging.Logger = logging.getLogger(__name__)
 # Global defaults
 PATCH_NAME = 'patch-Y.MPQ'
 PATCH_CONTENT = [
+    'Character',
     'Creature',
     'Fonts',
     'Sound',
