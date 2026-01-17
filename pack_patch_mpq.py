@@ -40,6 +40,7 @@ PATCH_CONTENT = [
     'Creature',
     'Fonts',
     'Sound',
+    'vertmain.blp',
 ]
 # Lets give a try to Windows users use this script.
 SMPQ_CMD = 'smpq' if os.name == 'posix' else r'C:\smpq\build\smpq.exe'
