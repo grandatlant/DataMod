@@ -110,7 +110,7 @@ def append_files(patch: str, files: Collection[str], csize: int = 20) -> int:
         from itertools import batched
         res = 0
         for chunk in batched(files, csize):
-            res |= append_files(patch, chunk)
+            res |= append_files(patch, chunk, csize)
         return res
     command = [
         smpq,
