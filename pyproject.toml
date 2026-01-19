@@ -1,0 +1,12 @@
+[project]
+name = "datamod"
+version = "1.0.6"
+description = "'Data' directory for World of Warcraft custom Data changes such as Sounds or Fonts."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = []
+
+[project.optional-dependencies]
+env = [
+    "python-dotenv>=1.2.1",
+]

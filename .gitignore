@@ -9,3 +9,4 @@ patch-*.mpq
 .env
 
 .mypy_cache/
+uv.lock
