@@ -22,6 +22,7 @@ from argparse import ArgumentParser, Namespace
 from typing import (
     Optional, Union,
     List, Dict,
+    Collection,
 )
 
 import logging
@@ -101,10 +102,16 @@ def init_patch(name: str, mpq_version: Union[str, int] = '2') -> int:
     return result.returncode or 0
 
 
-def append_files(patch: str, files: List[str]) -> int:
+def append_files(patch: str, files: Collection[str], csize: int = 20) -> int:
     """Append existing MPQ file "patch"
     with list of "files" given using smpq util.
     Return value: status code returned by smpq."""
+    if len(files) > csize:  # dirty hack to fix [WinError 206]
+        from itertools import batched
+        res = 0
+        for chunk in batched(files, csize):
+            res |= append_files(patch, chunk)
+        return res
     command = [
         smpq,
         '--append',
