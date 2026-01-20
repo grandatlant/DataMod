@@ -6,12 +6,6 @@ import sys
 import os
 import re
 
-if os.name == 'posix':
-    WOW_PATH = (
-        '/run/media/soulsbane/Games/Games/WoW/World of Warcraft/_retail_'
-    )
-elif (os.name == 'win') or (os.name == 'nt'):
-    WOW_PATH = r'E:\World of Warcraft\\'
 
 WOW_PATH = '../'
 
@@ -78,7 +72,7 @@ def clean_saved_variables(wow_path):
 def main(argv=None):
     wow_path = WOW_PATH
 
-    if len(argv) == 2:
+    if argv and len(argv) == 2:
         wow_path = argv[1]
 
     if not os.path.isdir(wow_path):
