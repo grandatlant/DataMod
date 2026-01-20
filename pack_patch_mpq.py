@@ -20,17 +20,20 @@ import subprocess
 from argparse import ArgumentParser, Namespace
 
 from typing import (
-    Optional, Union,
-    List, Dict,
+    Optional,
+    Union,
+    List,
+    Dict,
     Collection,
 )
 
 import logging
+
 logging.basicConfig(
-    level = logging.DEBUG if __debug__ else logging.INFO,
-    stream = sys.stdout,
-    style = '{',
-    format = '{levelname}::{message}',
+    level=logging.DEBUG if __debug__ else logging.INFO,
+    stream=sys.stdout,
+    style='{',
+    format='{levelname}::{message}',
 )
 log: logging.Logger = logging.getLogger(__name__)
 
@@ -52,6 +55,7 @@ dotENV: Dict[str, Optional[str]] = {
 }
 try:
     from dotenv import dotenv_values
+
     dotENV.update(dotenv_values())
 except ImportError:
     # pip install python-dotenv
@@ -87,7 +91,7 @@ def init_patch(name: str, mpq_version: Union[str, int] = '2') -> int:
     result = subprocess.run(
         command,
         text=True,
-        #check=True,
+        # check=True,
         capture_output=True,
     )
     if result.stdout:
@@ -108,6 +112,7 @@ def append_files(patch: str, files: Collection[str], csize: int = 20) -> int:
     Return value: status code returned by smpq."""
     if len(files) > csize:  # dirty hack to fix [WinError 206]
         from itertools import batched
+
         res = 0
         for chunk in batched(files, csize):
             res |= append_files(patch, chunk, csize)
@@ -124,7 +129,7 @@ def append_files(patch: str, files: Collection[str], csize: int = 20) -> int:
     result = subprocess.run(
         command,
         text=True,
-        #check=True,
+        # check=True,
         capture_output=True,
     )
     if result.stdout:
@@ -141,7 +146,7 @@ def append_files(patch: str, files: Collection[str], csize: int = 20) -> int:
 
 def list_dir_files(dirname: str) -> List[str]:
     """os.walk directory named "dirname"
-    and form a list of all files in it 
+    and form a list of all files in it
     with relative dirpath included to each filename.
     Return value: list of strings representing filenames."""
     files = list()
@@ -174,38 +179,37 @@ def append_patch(name: str, content: List[str]) -> int:
 
 
 def parse_cli_args(args: Optional[List[str]] = None) -> Namespace:
-    
     parser: ArgumentParser = ArgumentParser(
-        description = __doc__,
-        allow_abbrev = False,
-        epilog = __copyright__,
+        description=__doc__,
+        allow_abbrev=False,
+        epilog=__copyright__,
     )
     parser.add_argument(
         '-v',
         '--version',
-        action = 'version',
-        version = f'%(prog)s {__version__}',
+        action='version',
+        version=f'%(prog)s {__version__}',
     )
     parser.add_argument(
         '-a',
         '--append',
-        action = 'store_true',
-        default = False,
-        help = '''append existing patch file. 
-        New force-created by default or if not exists.''',
+        action='store_true',
+        default=False,
+        help="""append existing patch file. 
+        New force-created by default or if not exists.""",
     )
     parser.add_argument(
         '-p',
         '--patch',
-        default = PATCH_NAME,
-        help = f'''MPQ archive name in format "patch-X.MPQ" or just "X".
+        default=PATCH_NAME,
+        help=f'''MPQ archive name in format "patch-X.MPQ" or just "X".
         Default filename "{PATCH_NAME}" script-defined.''',
     )
     parser.add_argument(
         'content',
-        nargs = '*',
-        default = PATCH_CONTENT,
-        help = f'''name of directories or files to pack.
+        nargs='*',
+        default=PATCH_CONTENT,
+        help=f'''name of directories or files to pack.
         Default content "{PATCH_CONTENT}" script-defined.''',
     )
     return parser.parse_args(args)
@@ -218,7 +222,7 @@ def main(args: Optional[List[str]] = None) -> int:
         args = args[1:]
     parsed: Namespace = parse_cli_args(args)
     log.debug('Parsed args: %s', parsed)
-    
+
     patch: str = ensure_patch_name(parsed.patch)
     if not parsed.append or not os.path.exists(patch):
         # init new patch file first
@@ -229,7 +233,7 @@ def main(args: Optional[List[str]] = None) -> int:
                 init_result,
             )
             return init_result
-    
+
     # now append existing patch
     if append_result := append_patch(patch, parsed.content):
         log.error(
@@ -238,7 +242,7 @@ def main(args: Optional[List[str]] = None) -> int:
             append_result,
         )
         return append_result
-    
+
     log.debug('main(%s) OK. return 0', args)
     return 0
 
