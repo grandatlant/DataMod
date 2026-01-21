@@ -47,7 +47,7 @@ PATCH_CONTENT = [
     'vertmain.blp',
 ]
 # Lets give a try to Windows users use this script.
-SMPQ_CMD = 'smpq' if os.name == 'posix' else r'C:\smpq\build\smpq.exe'
+SMPQ_CMD = 'smpq'  # if os.name == 'posix' else r'C:\smpq\build\smpq.exe'
 # You can override it with SMPQ variable in your environment
 # or .env file value 'SMPQ'
 dotENV: Dict[str, Optional[str]] = {
@@ -117,6 +117,7 @@ def append_files(patch: str, files: Collection[str], csize: int = 20) -> int:
         for chunk in batched(files, csize):
             res |= append_files(patch, chunk, csize)
         return res
+
     command = [
         smpq,
         '--append',
