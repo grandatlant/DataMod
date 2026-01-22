@@ -4,7 +4,8 @@
 
 Merge this files into Data directory (or just patch-Y.MPQ file alone) to get profit:
 
-- Creature/ replacement for Ghosts (Lady Deathwhisper ICC fight)
+- Character/ model replacement for Blood Elf Female
+- Creature/ replacement for Ghosts (Lady Deathwhisper ICC fight) and Halion hitbox with max-melee range and safe sector hints
 - Fonts/ for cyrillic charset
 - Sound/ replacement for annoying sounds e.g. Goblin Weather Machine, Argent Gruntling/Squire, Lament of the Highborne song, Fizzle spell sounds, Character voice emotions
 - [patch-Y.MPQ](https://github.com/grandatlant/DataMod/blob/main/patch-Y.MPQ) itself with all contents above
@@ -12,5 +13,6 @@ Merge this files into Data directory (or just patch-Y.MPQ file alone) to get pro
 Additional content besides patch:
 
 - 'realmlist.wtf' for warmane.com private server
-- [script](https://github.com/grandatlant/DataMod/blob/main/pack_patch_mpq.py) for packing all files from Creature/, Fonts/, Sound/ to one 'patch-Y.MPQ'
-- [script](https://github.com/grandatlant/DataMod/blob/main/remove-unused-sv.py) for SavedVariables cleanup in your WTF/ (stolen from [Soulsbane](https://github.com/Soulsbane/WowRemoveUnusedSV) with WoW path override to "../")
+- [python script](https://github.com/grandatlant/DataMod/blob/main/pack_patch_mpq.py) for packing all files from Character/, Creature/, Fonts/, Sound/ to one 'patch-Y.MPQ' with help of...
+- smpq executable build for windows-x64 - StormLib CLI util for working with MPQ files
+- [python script](https://github.com/grandatlant/DataMod/blob/main/remove_unused_sv.py) for SavedVariables cleanup in your WTF/ (stolen from [Soulsbane](https://github.com/Soulsbane/WowRemoveUnusedSV) with WoW path override to "../")
