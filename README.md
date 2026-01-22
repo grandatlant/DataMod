@@ -14,5 +14,5 @@ Additional content besides patch:
 
 - 'realmlist.wtf' for warmane.com private server
 - [python script](https://github.com/grandatlant/DataMod/blob/main/pack_patch_mpq.py) for packing all files from Character/, Creature/, Fonts/, Sound/ to one 'patch-Y.MPQ' with help of...
-- smpq executable build for windows-x64 - StormLib CLI util for working with MPQ files
+- [smpq](https://launchpad.net/smpq) executable build for windows-x64 - StormLib CLI util for working with MPQ files
 - [python script](https://github.com/grandatlant/DataMod/blob/main/remove_unused_sv.py) for SavedVariables cleanup in your WTF/ (stolen from [Soulsbane](https://github.com/Soulsbane/WowRemoveUnusedSV) with WoW path override to "../")
