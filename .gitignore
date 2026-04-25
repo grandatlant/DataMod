@@ -4,6 +4,7 @@ patch-*.mpq
 
 # But save default-packed patch with all contents for downloading
 !patch-Y.MPQ
+!patch-Z.MPQ
 
 # Local environment variables
 .env
